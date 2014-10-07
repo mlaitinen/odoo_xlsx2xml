@@ -13,15 +13,17 @@ The xlsx file must meet the following requirements:
  - contains a field called ```id```
  - the data starts from row 2
 
+A column can contain attribute values instead of regular text content. These columns must have
+question mark as a delimiter and the attribute name after that. See example below (parent?ref).
 <br />
 Converts this:
 
 record model: ```my.module.label```
 
-|id    | name    |
-|:---- | :-------|
-|a0    | Record 1|
-|a1    | Record 2|
+id    | name    | parent?ref
+:---- | :-------| :---------
+a0    | Record 1|
+a1    | Record 2| a0
 
 <br />
 into this:
@@ -33,6 +35,7 @@ into this:
         </record>
         <record model="my.module.label" id="a1">
             <field name="name">Record 2</field>
+            <field name="parent" ref="a0" />
         </record>
     </data>
 </openerp>
