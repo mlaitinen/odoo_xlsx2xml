@@ -7,13 +7,23 @@ from lxml import etree
 def generate_accounts(sheet, data, record_model):
 
     # Get the header values / field names
-    headers = {cell.column: cell.value for cell in sheet.rows.__next__() if cell.value}
     id_col = None
-    for col, field_name in headers.items():
-        if field_name == 'id':
-            id_col = col
-            headers.pop(col)
-            break
+    headers = {}
+    attrs = {}
+    for header_cell in sheet.rows.__next__():
+        header_value = header_cell.value
+        if not header_value:
+            continue
+
+        if header_value == 'id':
+            id_col = header_cell.column
+            continue
+
+        if '?' in header_value:
+            header_value, attr = header_value.split('?')
+            attrs[header_cell.column] = attr
+
+        headers[header_cell.column] = header_value
 
     if id_col is None:
         raise Exception("The ID column is missing")
@@ -23,12 +33,22 @@ def generate_accounts(sheet, data, record_model):
         record = etree.Element("record", model=record_model)
 
         for cell in account_row:
-            if cell.column in headers:
+            value = str(cell.value)
+
+            if cell.column in headers and cell.value:
                 field = etree.Element("field", name=headers[cell.column])
-                field.text = str(cell.value)
+
+                if cell.column in attrs:
+                    # As an attribute
+                    field.attrib[attrs[cell.column]] = value
+                else:
+                    # As a value
+                    field.text = value
+
                 record.append(field)
             elif cell.column == id_col:
-                record.attrib['id'] = cell.value
+                record.attrib['id'] = value
+
         return record
 
     # Iterate the rows in the worksheet
