@@ -1,0 +1,39 @@
+odoo_xlsx2xml
+=============
+
+A small script for converting a straight xlsx file to an odoo xml file.
+
+Usage: ```odoo_xlsx2xml.py <xlsx file> <record model> [<output.xml>]```
+
+Example: ```odoo_xlsx2xml.py accounts.xlsx account.account.template chart_of_accounts.xml```
+
+The xlsx file must meet the following requirements:
+ - contains only one worksheet
+ - field names are located on the first row of the sheet
+ - contains a field called ```id```
+ - the data starts from row 2
+
+<br />
+Converts this:
+
+record model: ```my.module.label```
+
+|id    | name    |
+|:---- | :-------|
+|a0    | Record 1|
+|a1    | Record 2|
+
+<br />
+into this:
+```
+<openerp>
+    <data noupdate="1">
+        <record model="my.module.label" id="a0">
+            <field name="name">Record 1</field>
+        </record>
+        <record model="my.module.label" id="a1">
+            <field name="name">Record 2</field>
+        </record>
+    </data>
+</openerp>
+```
